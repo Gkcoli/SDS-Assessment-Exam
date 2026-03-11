@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title — SDSExam Colinares</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0a0c0f; --surface: #111418; --card: #16191f; --border: #1e2530;
+            --accent: #00ff88; --accent2: #00cfff; --danger: #ff3b5c; --warn: #ffa040;
+            --text: #dde4f0; --muted: #556070;
+            --mono: 'Space Mono', monospace;
+            --sans: 'Barlow Condensed', sans-serif;
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: var(--sans); font-size: 16px; min-height: 100vh;
+        }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,136,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,.025) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none; z-index: 0;
+        }
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10,12,15,.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; padding: 0 2rem; height: 60px; gap: 2rem;
+        }
+        .nav-logo { font-family: var(--mono); font-size: .82rem; color: var(--accent); letter-spacing: .1em; }
+        .nav-logo span { color: var(--muted); }
+        .nav-links { display: flex; gap: .25rem; margin-left: auto; }
+        .nav-links a {
+            font-family: var(--sans); font-weight: 600; font-size: .88rem;
+            letter-spacing: .12em; text-transform: uppercase;
+            padding: .5rem 1.25rem; border-radius: 4px;
+            color: var(--muted); text-decoration: none; transition: color .2s, background .2s;
+        }
+        .nav-links a:hover { color: var(--text); background: rgba(255,255,255,.04); }
+        .nav-links a.active { color: var(--accent); background: rgba(0,255,136,.08); }
+        main { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .alert-success {
+            font-family: var(--mono); font-size: .78rem; padding: .8rem 1.2rem;
+            border-radius: 4px; margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent); background: var(--card);
+            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        }
+        .alert-error {
+            font-family: var(--mono); font-size: .78rem; padding: .8rem 1.2rem;
+            border-radius: 4px; margin-bottom: 1.5rem;
+            border-left: 3px solid var(--danger); background: var(--card);
+            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-logo">// <span>RecyclableDB</span>_<span style="color:var(--accent2)">Colinares</span></div>
+        <div class="nav-links">
+            <a href="@Url.Action("Index","RecyclableType")"
+               class="@(ViewContext.RouteData.Values["controller"].ToString() == "RecyclableType" ? "active" : "")">
+                Recyclable Types
+            </a>
+            <a href="@Url.Action("Index","RecyclableItem")"
+               class="@(ViewContext.RouteData.Values["controller"].ToString() == "RecyclableItem" ? "active" : "")">
+                Recyclable Items
+            </a>
+        </div>
+    </nav>
+    <main>
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-success">✓ @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-error">✗ @TempData["Error"]</div>
+        }
+        @RenderBody()
+    </main>
+    @Scripts.Render("~/bundles/jquery")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

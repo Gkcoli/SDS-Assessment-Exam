@@ -1,0 +1,89 @@
+@model IEnumerable<SDSExam_Colinares.Models.RecyclableType>
+@{
+    ViewBag.Title = "Recyclable Types";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .page-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid var(--border); }
+    .page-title { font-size:3rem; font-weight:800; text-transform:uppercase; line-height:1; }
+    .page-title .hl { color:var(--accent); }
+    .page-sub { font-family:var(--mono); font-size:.7rem; color:var(--muted); margin-top:.4rem; letter-spacing:.1em; }
+    .btn { display:inline-flex; align-items:center; font-family:var(--sans); font-weight:700; font-size:.82rem; letter-spacing:.14em; text-transform:uppercase; padding:.6rem 1.4rem; border:1px solid transparent; border-radius:3px; cursor:pointer; text-decoration:none; transition:all .18s; }
+    .btn-primary { background:var(--accent); color:#000; }
+    .btn-primary:hover { background:#00e67a; color:#000; }
+    .btn-edit { background:transparent; color:var(--accent2); border-color:rgba(0,207,255,.3); }
+    .btn-edit:hover { background:rgba(0,207,255,.08); }
+    .btn-danger { background:transparent; color:var(--danger); border-color:rgba(255,59,92,.3); }
+    .btn-danger:hover { background:rgba(255,59,92,.1); }
+    .btn-sm { padding:.35rem .85rem; font-size:.72rem; }
+    .table-wrap { background:var(--card); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+    .table-toolbar { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; border-bottom:1px solid var(--border); }
+    .table-label { font-family:var(--mono); font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+    table { width:100%; border-collapse:collapse; }
+    thead tr { background:var(--surface); border-bottom:1px solid var(--border); }
+    th { font-family:var(--mono); font-size:.63rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); padding:.85rem 1.5rem; text-align:left; }
+    td { padding:.95rem 1.5rem; font-size:.92rem; border-bottom:1px solid rgba(30,37,48,.6); vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tbody tr:hover { background:rgba(0,255,136,.025); }
+    .mono-val { font-family:var(--mono); font-size:.8rem; color:var(--accent2); }
+    .rate-badge { font-family:var(--mono); font-size:.76rem; padding:.2rem .65rem; border-radius:2px; background:rgba(0,255,136,.1); color:var(--accent); border:1px solid rgba(0,255,136,.2); }
+    .type-pill { font-size:.78rem; font-weight:700; letter-spacing:.07em; padding:.22rem .7rem; border-radius:2px; text-transform:uppercase; background:rgba(85,96,112,.15); color:var(--muted); border:1px solid var(--border); }
+    .actions-cell { display:flex; gap:.5rem; }
+    .empty-state { padding:3.5rem 2rem; text-align:center; color:var(--muted); font-family:var(--mono); font-size:.8rem; }
+</style>
+
+<div class="page-header">
+    <div>
+        <div class="page-title"><span class="hl">Recyclable</span> Types</div>
+        <div class="page-sub">// RECYCLABLETYPE TABLE &mdash; @Model.Count() RECORDS</div>
+    </div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">+ Add Type</a>
+</div>
+
+<div class="table-wrap">
+    <div class="table-toolbar">
+        <span class="table-label">All Types</span>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">♻ No recyclable types yet.</div>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>Rate / kg</th>
+                    <th>Min kg</th>
+                    <th>Max kg</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="mono-val">@item.Id.ToString("D3")</td>
+                        <td><span class="type-pill">@item.Type</span></td>
+                        <td><span class="rate-badge">&#8369;@item.Rate.ToString("F2")</span></td>
+                        <td class="mono-val">@item.MinKg.ToString("F2")</td>
+                        <td class="mono-val">@item.MaxKg.ToString("F2")</td>
+                        <td>
+                            <div class="actions-cell">
+                                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-edit btn-sm">Edit</a>
+                                @using (Html.BeginForm("Delete", "RecyclableType", new { id = item.Id }, FormMethod.Post))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Delete @item.Type?')">Delete</button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

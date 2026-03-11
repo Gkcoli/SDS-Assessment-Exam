@@ -1,0 +1,97 @@
+@model SDSExam_Colinares.Models.RecyclableItem
+@{
+    ViewBag.Title = "Add Recyclable Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .page-title { font-size:2.8rem; font-weight:800; text-transform:uppercase; line-height:1; margin-bottom:.4rem; }
+    .page-title .hl { color:var(--accent2); }
+    .page-sub { font-family:var(--mono); font-size:.7rem; color:var(--muted); letter-spacing:.1em; margin-bottom:2rem; }
+    .form-card { background:var(--card); border:1px solid var(--border); border-radius:6px; max-width:520px; overflow:hidden; }
+    .form-header { background:var(--surface); border-bottom:1px solid var(--border); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .form-header-title { font-family:var(--mono); font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+    .form-header-title strong { color:var(--accent2); }
+    .dot { width:8px; height:8px; border-radius:50%; background:var(--accent2); box-shadow:0 0 8px var(--accent2); }
+    .form-body { padding:1.5rem; display:flex; flex-direction:column; gap:1.1rem; }
+    .field { display:flex; flex-direction:column; gap:.4rem; }
+    .field label { font-family:var(--mono); font-size:.63rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+    .field input, .field select { background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:.85rem; padding:.65rem .9rem; border-radius:3px; outline:none; transition:border .2s; width:100%; }
+    .field input:focus, .field select:focus { border-color:var(--accent2); box-shadow:0 0 0 3px rgba(0,207,255,.1); }
+    .field-error { font-family:var(--mono); font-size:.68rem; color:var(--danger); }
+    .computed-box { background:rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.15); border-radius:3px; padding:.65rem .9rem; font-family:var(--mono); font-size:1.1rem; color:var(--accent); display:flex; align-items:center; justify-content:space-between; }
+    .computed-box small { font-size:.58rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(0,255,136,.5); }
+    .form-footer { padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; gap:.75rem; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; font-family:var(--sans); font-weight:700; font-size:.82rem; letter-spacing:.14em; text-transform:uppercase; padding:.65rem 1.5rem; border:1px solid transparent; border-radius:3px; cursor:pointer; text-decoration:none; transition:all .18s; flex:1; }
+    .btn-primary { background:var(--accent2); color:#000; }
+    .btn-primary:hover { background:#20dfff; color:#000; }
+    .btn-ghost { background:transparent; color:var(--muted); border-color:var(--border); }
+    .btn-ghost:hover { color:var(--text); }
+</style>
+
+<div class="page-title"><span class="hl">Add</span> Recyclable Item</div>
+<div class="page-sub">// NEW RECORD</div>
+
+@using (Html.BeginForm("Create", "RecyclableItem", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="form-card">
+        <div class="form-header">
+            <span class="form-header-title">// <strong>NEW</strong> ITEM</span>
+            <div class="dot"></div>
+        </div>
+        <div class="form-body">
+            @Html.ValidationSummary(true, "", new { @class = "field-error" })
+            <div class="field">
+                <label>Recyclable Type</label>
+                @Html.DropDownListFor(m => m.RecyclableTypeId,
+                    (SelectList)ViewBag.RecyclableTypes,
+                    "— Select Type —",
+                    new { id = "RecyclableTypeId" })
+                @Html.ValidationMessageFor(m => m.RecyclableTypeId, "", new { @class = "field-error" })
+            </div>
+            <div class="field">
+                <label>Description</label>
+                @Html.TextBoxFor(m => m.ItemDescription, new { placeholder = "e.g. PET Bottles", maxlength = "150" })
+                @Html.ValidationMessageFor(m => m.ItemDescription, "", new { @class = "field-error" })
+            </div>
+            <div class="field">
+                <label>Weight (kg)</label>
+                @Html.TextBoxFor(m => m.Weight, new { placeholder = "0.00", type = "number", step = "0.01", min = "0.01", id = "Weight" })
+                @Html.ValidationMessageFor(m => m.Weight, "", new { @class = "field-error" })
+            </div>
+            <div class="field">
+                <label>Computed Rate (auto)</label>
+                <div class="computed-box">
+                    <span id="computed-display">&#8369;0.00</span>
+                    <small>Rate × Weight</small>
+                </div>
+            </div>
+        </div>
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="@Url.Action("Index")" class="btn btn-ghost">Cancel</a>
+        </div>
+    </div>
+}
+
+@section scripts {
+<script>
+    function computeRate() {
+        var typeId = document.getElementById('RecyclableTypeId').value;
+        var weight = parseFloat(document.getElementById('Weight').value) || 0;
+        if (!typeId) { document.getElementById('computed-display').textContent = '&#8369;0.00'; return; }
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '@Url.Action("GetRate", "RecyclableItem")?typeId=' + typeId, true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                var result = (data.rate * weight).toFixed(2);
+                document.getElementById('computed-display').textContent = '&#8369;' + result;
+            }
+        };
+        xhr.send();
+    }
+    document.getElementById('RecyclableTypeId').addEventListener('change', computeRate);
+    document.getElementById('Weight').addEventListener('input', computeRate);
+</script>
+}
